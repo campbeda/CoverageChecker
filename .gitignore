@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Bash files
+# Shell files
 *.swp
 
 # Project specific files

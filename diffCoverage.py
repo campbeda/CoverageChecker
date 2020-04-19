@@ -28,22 +28,22 @@ def generateDiffAdditions(diff):
             continue
         lines = f.splitlines()
 
-        # Manually iterate since format is well-defined
+        # Manually iterate through file diff since format is well-defined
         lineIter = iter(lines)
 
         # Get file name
         line = next(lineIter)
-        while not '+++' in line:
+        while not line.startswith('+++'):
             line = next(lineIter)
-        fileName = line.split('/')[-1]
+        fileName = line.split('b/')[-1]
         additions[fileName] = {}
 
-        # Next line must be start of diff chunk
-        line = next(lineIter)
+        # Process diff chunks
         currentLineNum = 0
+        line = next(lineIter)
         while True:
-            if '@@' in line:
-                # Get starting line from first value in second tuple
+            if line.startswith('@@'):
+                # Get current line number from first value in second tuple
                 try:
                     currentLineNum = int(line.split('+')[-1].split(',')[0])
                 except ValueError:
@@ -62,18 +62,21 @@ def generateDiffAdditions(diff):
     return additions
 
 def validateCoverage(report, additions):
-    '''Build dictionary of additions with missing coverage.'''
+    '''For each line added in diff, verify line is covered or excluded.'''
     missingCoverage = {}
 
-    for fileName in report["files"]:
-        for missingLine in report["files"][fileName]["missing_lines"]:
-            if missingLine in report["files"][fileName]["excluded_lines"]:
-                continue
-            # Check if line was added by diff
-            if fileName in additions and missingLine in additions[fileName]:
+    for fileName in additions:
+        if not fileName.endswith('.py'):
+            continue
+        fileReport = report["files"].get(fileName, None)
+        for lineNum in additions[fileName]:
+            # If python file is not present in coverage report, it must be totally uncovered.
+            missing = fileReport is None or (lineNum in fileReport["missing_lines"] and \
+                                             lineNum not in fileReport["excluded_lines"])
+            if missing:
                 if fileName not in missingCoverage:
                     missingCoverage[fileName] = []
-                missingStr = "{0} {1}".format(missingLine, additions[fileName][missingLine])
+                missingStr = "{0} {1}".format(lineNum, additions[fileName][lineNum])
                 missingCoverage[fileName].append(missingStr)
     return missingCoverage
 
@@ -93,8 +96,8 @@ def printCoverage(missingCoverage):
             print(RED + "Failure" + ESC)
         else:
             print("Failure")
+        print("Files missing coverage:")
         print()
-        print("Changes missing coverage:")
         for fileName in missingCoverage:
             print(fileName + ":")
             for line in missingCoverage[fileName]:
@@ -108,6 +111,7 @@ if __name__ == "__main__":
                         help='Path to diff file. Omit to use stdin.')
     parser.add_argument('-r', '--report', action="store", dest="report", required=True,
                         help='Path to coverage report.')
+    # TODO: add arg for sources to consider
     results = parser.parse_args()
 
     # Read diff into string
