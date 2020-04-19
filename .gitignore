@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Bash files
+*.swp
+
+# Project specific files
+coverage.json
+
 # C extensions
 *.so
 
