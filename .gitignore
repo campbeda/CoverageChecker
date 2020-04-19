@@ -7,6 +7,7 @@ __pycache__/
 *.swp
 
 # Project specific files
+branch.diff
 coverage.json
 
 # C extensions
