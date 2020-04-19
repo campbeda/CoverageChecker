@@ -33,8 +33,16 @@ def generateDiffAdditions(diff):
 
         # Get file name
         line = next(lineIter)
+        skip = False
         while not line.startswith('+++'):
-            line = next(lineIter)
+            try:
+                line = next(lineIter)
+            except StopIteration:
+                # skip files that don't have diff chunks
+                skip = True
+                break
+        if skip: continue
+
         fileName = line.split('b/')[-1]
         additions[fileName] = {}
 
@@ -45,7 +53,8 @@ def generateDiffAdditions(diff):
             if line.startswith('@@'):
                 # Get current line number from first value in second tuple
                 try:
-                    currentLineNum = int(line.split('+')[-1].split(',')[0])
+                    # currentLineNum = int(line.split('+')[-1].split(',')[0])
+                    currentLineNum = int(line.split('+', 1)[-1].split(',')[0].rstrip(' @@'))
                 except ValueError:
                     print("Invalid diff line format: {0}".format(line))
                     sys.exit(1)
