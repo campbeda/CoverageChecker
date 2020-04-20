@@ -10,6 +10,7 @@ by `coverage.py` when `coverage json` is invoked.
 
 import argparse
 import json
+import os
 import re
 import sys
 
@@ -18,7 +19,7 @@ ESC='\033[0m'
 GREEN='\033[32m'
 RED='\033[31m'
 
-def generateDiffAdditions(diff):
+def generateDiffAdditions(diff, sources=None):
     '''Build dictionary mapping file name to line additions.'''
     additions = {}
     files = re.split(r'^diff --git.*$', diff, flags=re.MULTILINE)
@@ -32,19 +33,28 @@ def generateDiffAdditions(diff):
         lineIter = iter(lines)
 
         # Get file name
-        line = next(lineIter)
         skip = False
+        line = next(lineIter)
         while not line.startswith('+++'):
             try:
                 line = next(lineIter)
             except StopIteration:
-                # skip files that don't have diff chunks
+                # Skip files that do not have diff chunks
                 skip = True
                 break
-        if skip: continue
+        if skip:
+            continue
 
-        fileName = line.split('b/')[-1]
-        additions[fileName] = {}
+        filePath = line.split('b/')[-1]
+        # If sources are passed, file must be in sources directory.
+        if sources is not None:
+            # Remove basename from filename
+            fileName = filePath.split('/')[-1]
+            basePath = filePath.replace('/' + fileName, '')
+            if basePath not in sources:
+                continue
+
+        additions[filePath] = {}
 
         # Process diff chunks
         currentLineNum = 0
@@ -53,13 +63,12 @@ def generateDiffAdditions(diff):
             if line.startswith('@@'):
                 # Get current line number from first value in second tuple
                 try:
-                    # currentLineNum = int(line.split('+')[-1].split(',')[0])
-                    currentLineNum = int(line.split('+', 1)[-1].split(',')[0].rstrip(' @@'))
+                    currentLineNum = int(line.split('+', 1)[-1].split(',', 1)[0].rstrip(' @@'))
                 except ValueError:
                     print("Invalid diff line format: {0}".format(line))
                     sys.exit(1)
             elif line.startswith('+'):
-                additions[fileName][currentLineNum] = line[1:]
+                additions[filePath][currentLineNum] = line[1:]
                 currentLineNum += 1
             elif not line.startswith('-'):
                 currentLineNum += 1
@@ -77,7 +86,11 @@ def validateCoverage(report, additions):
     for fileName in additions:
         if not fileName.endswith('.py'):
             continue
+        # Find corresponding file in coverage report
         fileReport = report["files"].get(fileName, None)
+        if fileReport is None:
+            # Try prepending cwd if there is no match
+            fileReport = report["files"].get(os.getcwd() + fileName, None)
         for lineNum in additions[fileName]:
             # If python file is not present in coverage report, it must be totally uncovered.
             missing = fileReport is None or (lineNum in fileReport["missing_lines"] and \
@@ -115,12 +128,16 @@ def printCoverage(missingCoverage):
         sys.exit(1)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Validate diff against coverage report.')
+    parser = argparse.ArgumentParser(
+            description='Validate diff against coverage report. Script SHOULD be \
+                        invoked from root of repository under test.')
     parser.add_argument('-d', '--diff', action='store', dest='diff',
                         help='Path to diff file. Omit to use stdin.')
     parser.add_argument('-r', '--report', action="store", dest="report", required=True,
                         help='Path to coverage report.')
-    # TODO: add arg for sources to consider
+    parser.add_argument('-s', '--source', action="store", dest="source",
+                        help='List of directories within repo to consider for coverage. \
+                              Paths are relative to root of repo. Omit for all.')
     results = parser.parse_args()
 
     # Read diff into string
@@ -143,8 +160,13 @@ if __name__ == "__main__":
         print("{} must be in valid JSON format".format(results.report))
         sys.exit(1)
 
+    # Generate list of directories to validate coverage against
+    sources = None
+    if results.source is not None:
+        sources = results.source.split(',')
+
     # Determine which lines were added by diff
-    additions = generateDiffAdditions(diff)
+    additions = generateDiffAdditions(diff, sources)
 
     # Compare missing coverage to diff
     missingCoverage = validateCoverage(report, additions)
