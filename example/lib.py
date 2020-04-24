@@ -17,3 +17,7 @@ class Bar(object):
 
     def getName(self):
         return self.name
+
+class Baz(object):
+    def __init__(self, num):
+        self.num = 1
