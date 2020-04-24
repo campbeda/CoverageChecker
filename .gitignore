@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Shell files
+*.swp
+
+# Project specific files
+branch.diff
+coverage.json
+
 # C extensions
 *.so
 
