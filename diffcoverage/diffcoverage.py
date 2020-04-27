@@ -70,8 +70,7 @@ def generateDiffAdditions(diff, sources=None):
             elif line.startswith('+'):
                 # Skip empty lines and special Python keywords
                 lineStrip = line[1:].strip()
-                if lineStrip and not ( lineStrip.startswith('import') or
-                                       lineStrip.startswith('from') or
+                if lineStrip and not ( lineStrip.startswith('#') or
                                        lineStrip.startswith('class') or
                                        lineStrip.startswith('def') ):
                     additions[filePath][currentLineNum] = line[1:]
