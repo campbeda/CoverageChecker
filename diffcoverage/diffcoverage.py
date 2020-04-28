@@ -68,7 +68,12 @@ def generateDiffAdditions(diff, sources=None):
                     print("Invalid diff line format: {0}".format(line))
                     sys.exit(1)
             elif line.startswith('+'):
-                additions[filePath][currentLineNum] = line[1:]
+                # Skip empty lines and special Python keywords
+                lineStrip = line[1:].strip()
+                if lineStrip and not ( lineStrip.startswith('#') or
+                                       lineStrip.startswith('class') or
+                                       lineStrip.startswith('def') ):
+                    additions[filePath][currentLineNum] = line[1:]
                 currentLineNum += 1
             elif not line.startswith('-'):
                 currentLineNum += 1
@@ -88,13 +93,16 @@ def validateCoverage(report, additions):
             continue
         # Find corresponding file in coverage report
         fileReport = report["files"].get(fileName, None)
+        # Try prepending basename of cwd or stripping filename
         if fileReport is None:
-            # Try prepending cwd if there is no match
-            fileReport = report["files"].get(os.getcwd() + fileName, None)
+            basename = os.path.basename( os.getcwd() )
+            fileReport = report["files"].get(basename + fileName, None)
+            if fileReport is None:
+                fileReport = report["files"].get(fileName.split('/')[-1])
         for lineNum in additions[fileName]:
             # If python file is not present in coverage report, it must be totally uncovered.
-            missing = fileReport is None or (lineNum in fileReport["missing_lines"] and \
-                                             lineNum not in fileReport["excluded_lines"])
+            missing = fileReport is None or ( lineNum not in fileReport["executed_lines"] and
+                                              lineNum not in fileReport["excluded_lines"] )
             if missing:
                 if fileName not in missingCoverage:
                     missingCoverage[fileName] = []

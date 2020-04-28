@@ -33,7 +33,7 @@ jobs:
         git diff origin/${GITHUB_BASE_REF} > branch.diff
         
         # 2. Run coverage report (optionally pass --sources).
-        coverage run example/test.py
+        coverage run -m unittest example.test
 
         # 3. Generate JSON from coverage report.
         coverage json
