@@ -22,7 +22,7 @@ setuptools.setup(
     install_requires=['coverage'],
     entry_points={
         'console_scripts': [
-            'diffcoverage = diffcoverage.cmdline:main',
+            'diffcoverage = diffcoverage.diffcoverage:main',
         ],
     }
 )
