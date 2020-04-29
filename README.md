@@ -43,7 +43,7 @@ $ coverage json
 
 Invoke `coveragecheck` to show missing coverage:
 ```
-$ git diff | coveragecheck.py -r coverage.json
+$ git diff | coveragecheck -r coverage.json
 Failure
 Files missing coverage:
 
