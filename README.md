@@ -66,7 +66,7 @@ class TestBarCoverage(unittest.TestCase):
 
 Regenerate coverage report as shown above, then invoke `coveragecheck`:
 ```
-$ git diff | coveragecheck.py -r coverage.json
+$ git diff | coveragecheck -r coverage.json
 Success!
 ```
 
