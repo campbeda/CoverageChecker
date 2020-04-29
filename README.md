@@ -9,7 +9,7 @@ output of [coverage.py](https://coverage.readthedocs.io). Example usage is shown
 ## Installing
 The simplest way to install is to use pip:
 ```
-pip install -i https://test.pypi.org/simple/ coveragecheck
+pip install coveragecheck
 ```
 
 The tool can also be installed by cloning this repository and putting coveragecheck.py on your path:

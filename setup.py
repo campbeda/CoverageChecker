@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="coveragecheck",
-    version="0.0.1",
+    version="0.0.2",
     author="Jeff Nelson, Dave Campbell, and Colton Saska",
     author_email="colt.saska@gmail.com",
     description="Set of tools for validating code coverage as a merge criterion in a CI pipeline.",
