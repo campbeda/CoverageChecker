@@ -1,5 +1,5 @@
-# Diffcoverage
-Diffcoverage is a tool that reports lines of code from diff that are not covered (or excluded) in project coverage report. 
+# coveragecheck
+coveragecheck is a tool that reports lines of code from diff that are not covered (or excluded) in project coverage report. 
 The intent is for this tool to be invoked in a continuous integration pipeline to enforce that merging code has full statement 
 coverage.
 
@@ -9,10 +9,10 @@ output of [coverage.py](https://coverage.readthedocs.io). Example usage is shown
 ## Installing
 The simplest way to install is to use pip:
 ```
-pip install -i https://test.pypi.org/simple/ diffcoverage
+pip install -i https://test.pypi.org/simple/ coveragecheck
 ```
 
-The tool can also be installed by cloning this repository and putting diffcoverage.py on your path:
+The tool can also be installed by cloning this repository and putting coveragecheck.py on your path:
 ```
 git clone https://github.com/jdn5126/CoverageChecker.git
 ```
@@ -22,7 +22,7 @@ For an example script for a continuous integration pipeline, check out the GitHu
 `.github/workflows/coverage_check.yml`. These steps should translate to any continuous integration application/automation server.
 
 ## Example
-The example directory, which contains a simple Python library and test file, allows us to test `diffcoverage`:
+The example directory, which contains a simple Python library and test file, allows us to test `coveragecheck`:
 
 Add a new class to `example/lib.py` without any test coverage:
 ```
@@ -41,9 +41,9 @@ $ coverage run -m unittest discover
 $ coverage json
 ```
 
-Invoke `diffcoverage` to show missing coverage:
+Invoke `coveragecheck` to show missing coverage:
 ```
-$ git diff | diffcoverage.py -r coverage.json
+$ git diff | coveragecheck.py -r coverage.json
 Failure
 Files missing coverage:
 
@@ -64,9 +64,9 @@ class TestBarCoverage(unittest.TestCase):
         assert bar.getName() == "bar"
 ```
 
-Regenerate coverage report as shown above, then invoke `diffcoverage`:
+Regenerate coverage report as shown above, then invoke `coveragecheck`:
 ```
-$ git diff | diffcoverage.py -r coverage.json
+$ git diff | coveragecheck.py -r coverage.json
 Success!
 ```
 
