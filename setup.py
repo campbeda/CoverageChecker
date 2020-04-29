@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="diffcoverage", # Replace with your own username
-    version="0.0.1",
+    version="0.0.2",
     author="Jeff Nelson, Dave Campbell, and Colton Saska",
     author_email="author@example.com",
     description="Set of tools for validating code coverage as a merge criterion in a CI pipeline.",
@@ -20,5 +20,10 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=['coverage'],
+    entry_points={
+        'console_scripts': [
+            'diffcoverage = diffcoverage.diffcoverage:main',
+        ],
+    }
 )
 
