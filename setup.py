@@ -7,7 +7,7 @@ setuptools.setup(
     name="coveragecheck",
     version="0.0.1",
     author="Jeff Nelson, Dave Campbell, and Colton Saska",
-    author_email="jdn5126@gmail.com dncswim76@gmail.com colt.saska@gmail.com",
+    author_email="colt.saska@gmail.com",
     description="Set of tools for validating code coverage as a merge criterion in a CI pipeline.",
     long_description=long_description,
     long_description_content_type="text/markdown",
