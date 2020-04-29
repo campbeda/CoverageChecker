@@ -135,7 +135,7 @@ def printCoverage(missingCoverage):
             print()
         sys.exit(1)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
             description='Validate diff against coverage report. Script SHOULD be \
                         invoked from root of repository under test.')
@@ -181,3 +181,6 @@ if __name__ == "__main__":
 
     # Print missing coverage and return success or failure
     printCoverage(missingCoverage)
+
+if __name__ == "__main__":
+    main()
